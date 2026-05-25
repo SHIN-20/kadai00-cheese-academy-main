@@ -1,0 +1,844 @@
+  /*
+   CSS Custom Properties（CSS変数）
+   */
+   :root {
+    /* === カラー(熟成系のダークテーマ) === */
+    --color-bg:          #0d0b08;  /* ほぼ黒だが、わずかに茶を含む */
+    --color-bg-soft:     #16130e;  /* セクション切り替え用の少し明るい暗色 */
+    --color-text:        #f4ede0;  /* 純白ではなく、生クリーム色 */
+    --color-text-muted:  #8a7f6e;  /* 補助テキスト用のくすみ色 */
+    --color-accent:      #e8b923;  /* 熟成チーズの金色(ただの黄色より深い) */
+    --color-accent-hot:  #ff4d1a;  /* 事故的に挿す焦げオレンジ */
+    --color-border:      rgba(244, 237, 224, 0.08);
+  
+    /* === タイポグラフィ === */
+    --font-display: "Bodoni Moda", "Playfair Display", serif;
+    --font-sans:    "Inter", "Noto Sans JP", sans-serif;
+    --font-mono:    "JetBrains Mono", monospace;
+    --font-jp-serif: "Shippori Mincho", serif; /* 日本語見出し用 */
+  
+    /* === サイズ(振り切った大きさにする) === */
+    --font-size-hero:     clamp(36px, 7vw, 96px);  /* 画面に収まるサイズに調整 */
+    --font-size-section:  clamp(40px, 7vw, 96px);
+    --font-size-body:     clamp(14px, 1vw, 16px);
+  
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+    /* 
+     全体共通項目っす
+     */
+  
+     body {
+        font-family: var(--font-sans);
+        color: var(--color-text);
+        background: var(--color-bg);
+        font-size: var(--font-size-body);
+        line-height: 1.7;
+        font-feature-settings: "palt";
+        -webkit-font-smoothing: antialiased;
+        position: relative;
+        overflow-x: hidden;
+      }
+      
+      /* 全画面に薄くノイズを乗せる*/
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;  /* クリックの邪魔をしない！ */
+        z-index: 9999;
+        opacity: 0.04;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        mix-blend-mode: overlay;
+      } 
+
+      /* 
+      セクションタイトル共通(全セクションで使う)
+     */
+     .section-title {
+        text-align: center;
+        padding: clamp(80px, 10vw, 140px) 20px 50px;
+      }
+    
+      /* 英文の大見出し(ABOUT / COURSE / NEWS / ACCESS / CONTACT) */
+      .section-title h2 {
+        font-family: var(--font-display);          /* Bodoni Moda(本文と統一) */
+        font-size: clamp(40px, 6vw, 80px);          /* 巨大に */
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 24px;
+        letter-spacing: -0.02em;                    /* 大文字は詰めると締まる */
+        text-transform: uppercase;                  /* 全部大文字に統一 */
+        color: var(--color-text);                   /* 明るい単色(グラデ廃止) */
+        /* 金色のほのかな発光で奥行きを出す */
+        text-shadow:
+          0 4px 30px rgba(0, 0, 0, 0.5),
+          0 0 40px rgba(232, 185, 35, 0.15);
+        /* グラデの透明化指定をリセット(これがないとグラデが残る) */
+        background: none;
+        -webkit-text-fill-color: initial;
+      }
+    
+      /* 日本語の説明文 */
+      .section-title p {
+        font-family: var(--font-jp-serif);          /* 明朝体に統一 */
+        font-size: clamp(14px, 1.3vw, 17px);
+        font-weight: 500;
+        color: var(--color-text);                   /* 明るい色に変更(#555 → 明色) */
+        letter-spacing: 0.12em;
+        line-height: 1.8;
+        max-width: 700px;
+        margin: 0 auto;
+        opacity: 0.85;                              /* 主役のh2より一段抑える */
+      }
+    
+      /* 下の黄色いバー(従来通り) */
+      .section-title::after {
+        content: "";
+        display: block;
+        width: 60px;                                /* 40px → 60px に拡大 */
+        height: 2px;
+        background: var(--color-accent);
+        margin: 32px auto 0;
+      } 
+  /* 
+     フェードインアニメーションのところはしたにある
+      */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+  }
+  .fade-in.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* 
+     ヘッダー（すりガラス風なやつ）
+     */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 20px 60px;
+    background: rgba(255, 255, 255, 0.８);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.8);
+  }
+  .header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .logo img {
+    width: 70px;
+    transition: transform 0.4s var(--ease-out);
+  }
+  .logo:hover img {
+    transform: scale(1.05);
+  }
+  
+  /* 
+     グローバルナビはここ
+     */
+  .global-nav ul {
+    display: flex;
+    gap: 40px;
+  }
+  .global-nav a {
+    font-size: 16px;
+    font-weight: 500;
+    position: relative;
+    padding: 8px 0;
+  }
+  .global-nav a::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--color-accent);
+    transition: width 0.3s var(--ease-out);
+  }
+  .global-nav a:hover::after {
+    width: 100%;
+  }
+  
+  /* 
+     メインビジュアル
+      */
+     .mainvisual {
+        position: relative;
+        height: 60vh;             /* 画面の縦いっぱい */
+        min-height: 700px;          /* スマホ等で縦が短くてもこれ以上は確保 */
+        overflow: hidden;
+        display: flex;
+        align-items: center;        /* 縦方向は中央揃え(従来通り) */
+        justify-content: flex-start;/* 横方向は左寄せに変更 */
+        color: #fff;
+        padding: 0 clamp(20px, 5vw, 80px); /* 左右の余白を画面幅に応じて */
+      }
+  
+  /* メインビジュアル上のロゴ(右上に大きく堂々と配置) */
+  .mainvisual-logo {
+    position: absolute;
+    top: 100px;                              /* ヘッダー直下に */
+    right: clamp(30px, 6vw, 100px);          /* 🟡 left → right に変更 */
+    left: auto;                              /* 🟡 これが無いと left:80px が残って効かない */
+    z-index: 5;
+    width: clamp(180px, 20vw, 280px);        /* 🟡 100px → 最大280px(約3倍) */
+    animation: logoDrop 1s var(--ease-out) 0.3s both;
+    /* 影と金色のほのかな発光で、背景から確実に浮かす */
+    filter:
+      drop-shadow(0 8px 30px rgba(0, 0, 0, 0.8))
+      drop-shadow(0 0 25px rgba(232, 185, 35, 0.3));
+  }  
+  .mainvisual-logo img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  /* ロゴ落下アニメーション */
+  @keyframes logoDrop {
+    from {
+      opacity: 0;
+      transform: translateY(100%);   /* 上から30px下に落ちてくる */
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* 背景画像レイヤー */
+  .mainvisual-bg {
+    position: absolute;
+    inset: 0;
+    background: url("../img/mainbg.png") center / cover no-repeat;
+    /* Ken Burns効果：ゆっくり拡大し続ける */
+    animation: kenBurns 20s ezaase-in-out infinite alternate;
+  }
+  
+  /* 暗いオーバーレイ：文字の視認性を高める */
+  .mainvisual-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      /* レイヤー1:左から右へ「暗→透明」のグラデ(テキスト側を確実に暗く) */
+      linear-gradient(
+        90deg,
+        rgba(13, 11, 8, 0.92) 0%,
+        rgba(13, 11, 8, 0.75) 35%,
+        rgba(13, 11, 8, 0.4)  70%,
+        rgba(13, 11, 8, 0.55) 100%
+      ),
+      /* レイヤー2:全体を上から下にも軽く暗くする保険 */
+      linear-gradient(
+        180deg,
+        rgba(13, 11, 8, 0.3) 0%,
+        rgba(13, 11, 8, 0.5) 100%
+      );
+  }
+  
+  .mainvisual-text {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;       /* 大画面でも文字が横に広がりすぎないように */
+    margin: 0;               /* 中央寄せの margin: auto を取り除く */
+    padding-top: 80px;       /* ロゴとの間に余裕を作る */
+    text-align: left;        /* 左寄せに */
+  }
+  
+  /* ヒーロータイトル（メインキャッチ） */
+  
+  /* ① 英語の前置き(— A school for cheese revolutionaries) */
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    color: var(--color-accent);
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+  }
+
+  /* ② 巨大ヒーロータイトル(Change the world, with cheese.) */
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: var(--font-size-hero);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: #ffffff;
+    margin-bottom: 30px;
+    /* 影を二重に重ねて立体感を出す */
+    text-shadow:
+      0 4px 30px rgba(0, 0, 0, 0.9),
+      0 2px 8px rgba(0, 0, 0, 0.7);
+    animation: heroFadeUp 1.2s var(--ease-out) 0.2s both;
+  }
+  /* タイトル内の各行を改行表示にする */
+  .hero-title .line {
+    display: block;
+  }
+  /* "the world," をイタリック+金色に */
+  .hero-title .italic {
+    font-style: italic;
+    color: var(--color-accent);
+  }
+  /* "cheese." だけ焦げオレンジに */
+  .hero-title em {
+    font-style: italic;
+    color: var(--color-accent-hot);
+    font-weight: 400;
+  }
+  
+  /* ヒーローサブテキスト */
+  .hero-sub {
+    font-size: clamp(14px, 1.8vw, 20px);
+    line-height: 1.4;
+    letter-spacing: 0.1em;
+    color: #fff;
+    text-shadow:
+      0 2px 15px rgba(0, 0, 0, 0.5),
+      0 0 30px rgba(0, 0, 0, 0.3);
+    animation: heroFadeUp 1.2s var(--ease-out) 0.5s both;
+  }
+  
+  /* キャッチコピー用のフェードアップアニメーション */
+  @keyframes heroFadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Ken Burns効果のアニメーション */
+  @keyframes kenBurns {
+    0% {
+      transform: scale(1) translate(0, 0);
+    }
+    100% {
+      transform: scale(1.1) translate(-1%, -1%);
+    }
+  }
+  
+  /* ============================================
+     ABOUT
+     ============================================ */
+  .about {
+    padding-bottom: clamp(60px, 8vw, 100px);
+  }
+  .about-text {
+    max-width: 700px;
+    margin: 0 auto 60px;
+    text-align: center;
+    padding: 0 20px;
+  }
+  .about-text p {
+    margin-bottom: 24px;
+  }
+  
+  .about-images {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  .about-images img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    transition: transform 0.6s var(--ease-out), filter 0.6s var(--ease-out);
+  }
+  .about-images img:hover {
+    transform: scale(1.05);
+    filter: saturate(1.2);
+  }
+  
+  /* 
+     COURSE
+     */
+  .course {
+    background: var(--color-bg-gray);
+    padding-bottom: clamp(60px, 8vw, 100px);
+  }
+  .course-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 60px;
+    max-width: 1200px;
+    margin: 0 auto 80px;
+    padding: 0 60px;
+  }
+  .course-item.reverse .course-image {
+    order: 2;
+  }
+  .course-image {
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
+  .course-image img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    transition: transform 0.8s var(--ease-out);
+  }
+  .course-image:hover img {
+    transform: scale(1.08);
+  }
+  .course-text h3 {
+    font-size: clamp(18px, 2vw, 22px);
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding-left: 16px;
+    border-left: 4px solid var(--color-accent);
+    line-height: 1.4;
+  }
+  
+  /* 
+     NEWS
+    */
+  .news {
+    padding-bottom: clamp(60px, 8vw, 100px);
+  }
+  .news-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto 50px;
+    padding: 0 20px;
+  }
+  .news-item {
+    display: block;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+  }
+  .news-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  }
+  .news-image {
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+  }
+  .news-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s var(--ease-out);
+  }
+  .news-item:hover .news-image img {
+    transform: scale(1.08);
+  }
+  .news-content {
+    padding: 24px;
+  }
+  .news-date {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+  .news-content h3 {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  
+  /* 
+     Moreボタン（共通スタイル）
+     */
+  .news-button {
+    text-align: center;
+  }
+  .news-button a,
+  .form-button button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+    height: 60px;
+    background: var(--color-accent);
+    color: var(--color-text);
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.1em;
+    transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+  }
+  .news-button a::before,
+  .form-button button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s var(--ease-out);
+  }
+  .news-button a:hover::before,
+  .form-button button:hover::before {
+    left: 100%;
+  }
+  .news-button a:hover,
+  .form-button button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 214, 26, 0.4);
+  }
+  
+  /* ============================================
+     ACCESS
+     ============================================ */
+  .access {
+    background: var(--color-bg-gray);
+    padding-bottom: clamp(60px, 8vw, 100px);
+  }
+  .access-map {
+    margin-bottom: 50px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .access-map iframe {
+    border-radius: 8px;
+    display: block;
+  }
+  .access-table {
+    max-width: 700px;
+    margin: 0 auto;
+    width: 100%;
+    border-collapse: collapse;
+    padding: 0 20px;
+  }
+  .access-table th,
+  .access-table td {
+    padding: 20px 15px;
+    border-bottom: 1px solid var(--color-border);
+    text-align: left;
+    vertical-align: top;
+  }
+  .access-table th {
+    width: 150px;
+    font-weight: 500;
+    color: #666;
+  }
+  
+  /* 
+     CONTACT
+      */
+  .contact {
+    padding-bottom: clamp(60px, 8vw, 100px);
+  }
+  .contact-lead {
+    text-align: center;
+    margin-bottom: 60px;
+    padding: 0 20px;
+  }
+  .contact-form {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+    align-items: flex-start;
+  }
+  .form-row > label {
+    padding-top: 12px;
+    font-weight: 500;
+  }
+  
+  .form-row input[type="text"],
+  .form-row input[type="email"],
+  .form-row select,
+  .form-row textarea {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 15px;
+    font-family: inherit;
+    background: #fff;
+    transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+  }
+  .form-row input:focus,
+  .form-row select:focus,
+  .form-row textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 4px rgba(255, 214, 26, 0.15);
+  }
+  .form-row textarea {
+    height: 150px;
+    resize: vertical;
+  }
+  
+  .checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: color 0.3s var(--ease-out);
+  }
+  .checkbox-group label:has(input:checked) {
+    color: #d4a800;
+    font-weight: 500;
+  }
+  
+  .form-button {
+    text-align: center;
+    margin-top: 40px;
+  }
+  
+  /* ============================================
+     フッター
+     ============================================ */
+  .footer {
+    background: var(--color-footer);
+    color: #fff;
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+  
+  /* ============================================
+     レスポンシブ対応（モバイル）
+     ============================================ */
+  @media (max-width: 768px) {
+    .header {
+      padding: 15px 20px;
+    }
+    .global-nav ul {
+      gap: 20px;
+    }
+    .global-nav a {
+      font-size: 13px;
+    }
+    /* メインビジュアル上のロゴをスマホで小さめに */
+    .mainvisual-logo {
+      top: 20px;
+      width: 120px;
+    }
+    /* COURSEのGridを1カラムに */
+    .course-item,
+    .course-item.reverse {
+      grid-template-columns: 1fr;
+      padding: 0 20px;
+      gap: 30px;
+    }
+    .course-item.reverse .course-image {
+      order: 0;
+    }
+    /* フォームのラベルを上に */
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    /* ABOUT画像を2x2グリッドに */
+    .about-images {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  /* === 区切り線(英語コピーと日本語の境目) === */
+.hero-divider {
+    width: 60px;
+    height: 1px;
+    background: var(--color-accent);
+    margin: 40px 0 30px;
+  
+    /* 線が左から伸びてくるアニメーション */
+    transform-origin: left;
+    animation: lineGrow 1.2s var(--ease-out) 1.2s both;
+  }
+  @keyframes lineGrow {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+  
+  /* === 日本語メインコピー(セカイを変える…) === */
+  .hero-jp-main {
+    font-family: var(--font-jp-serif);   /* Shippori Mincho(明朝) */
+    font-size: clamp(20px, 2.2vw, 32px);  /* 少し大きく */
+    font-weight: 700;                     /* 太く */
+    letter-spacing: 0.18em;
+    line-height: 1.5;
+    color: #ffffff;                       /* 真っ白に */
+    margin-bottom: 20px;
+    /* 濃い影で背景から浮かす */
+    text-shadow:
+      0 3px 20px rgba(0, 0, 0, 0.95),
+      0 1px 4px rgba(0, 0, 0, 0.8);
+
+    animation: heroFadeUp 1s var(--ease-out) 1.4s both;
+  }
+  
+  /* === 学校名(チーズ職人養成学校…) === */
+ .hero-jp-name {
+    font-family: var(--font-jp-serif);
+    font-size: clamp(14px, 1.2vw, 17px);  /* 少し大きく */
+    font-weight: 500;                     /* 400 → 500 に */
+    letter-spacing: 0.25em;               /* 文字間を広げる */
+    color: #f0e6d2;                       /* くすみ色 → 生成り色(明るく) */
+    line-height: 1.8;
+    /* 重要:濃い影で背景から確実に浮かす */
+    text-shadow:
+      0 2px 16px rgba(0, 0, 0, 1),
+      0 1px 4px rgba(0, 0, 0, 0.9);
+
+    animation: heroFadeUp 1s var(--ease-out) 1.6s both;
+  }
+  
+  /* 「」のカギ括弧だけアクセント色に */
+  .hero-jp-name .bracket {
+    color: var(--color-accent);
+    font-weight: 700;
+    margin: 0 2px;
+  }
+  
+  /* フェードアップアニメーション(共通) */
+  @keyframes heroFadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ============================================
+   ハイブリッド配色:本文セクションを明背景に
+   ↓ ここの数値を変えると全体の色味が一括で変わる
+   ============================================ */
+
+:root {
+    --color-bg-light:        #faf6ee;  /* 温かいクリーム白(主背景) */
+    --color-bg-light-warm:   #f3ebd9;  /* 少し濃いクリーム(切り替え用) */
+    --color-text-dark:       #1a1612;  /* 明背景での主文字色 */
+    --color-text-dark-muted: #5a4f3f;  /* 明背景での補助文字色 */
+  }
+  
+  /* ===== セクション背景色 ===== */
+  /* ABOUT, NEWS, CONTACT は明るいクリーム白 */
+  .about,
+  .news,
+  .contact {
+    background: var(--color-bg-light);
+    color: var(--color-text-dark);
+  }
+  /* COURSE, ACCESS は少し濃いクリーム(セクション切り替えで色が変わる演出) */
+  .course,
+  .access {
+    background: var(--color-bg-light-warm);
+    color: var(--color-text-dark);
+  }
+  
+  /* ===== 明背景セクション内のタイトル(暗文字に変更) ===== */
+  .about .section-title h2,
+  .course .section-title h2,
+  .news .section-title h2,
+  .access .section-title h2,
+  .contact .section-title h2 {
+    color: var(--color-text-dark);
+    text-shadow:
+      0 4px 30px rgba(0, 0, 0, 0.08),
+      0 0 40px rgba(232, 185, 35, 0.25);
+  }
+  .about .section-title p,
+  .course .section-title p,
+  .news .section-title p,
+  .access .section-title p,
+  .contact .section-title p {
+    color: var(--color-text-dark-muted);
+    opacity: 1;
+  }
+  
+  /* ===== ABOUT 本文 ===== */
+  .about-text,
+  .about-text p {
+    color: var(--color-text-dark);
+  }
+  
+  /* ===== COURSE 本文 ===== */
+  .course-text h3 {
+    color: var(--color-text-dark);
+  }
+  .course-text p {
+    color: var(--color-text-dark-muted);
+  }
+  
+  /* ===== NEWSカード(明背景上で浮かす) ===== */
+  .news-item {
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+  .news-item:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+  .news-content h3 {
+    color: var(--color-text-dark);
+  }
+  .news-date {
+    color: #8a7f6e;
+  }
+  
+  /* ===== ACCESS テーブル ===== */
+  .access-table th {
+    color: var(--color-text-dark-muted);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+  .access-table td {
+    color: var(--color-text-dark);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  /* ===== CONTACT 各要素 ===== */
+  .contact-lead {
+    color: var(--color-text-dark);
+  }
+  .form-row > label {
+    color: var(--color-text-dark);
+  }
+  .checkbox-group label {
+    color: var(--color-text-dark);
+  }
+  .form-row input[type="text"],
+  .form-row input[type="email"],
+  .form-row select,
+  .form-row textarea {
+    border-color: rgba(0, 0, 0, 0.15);
+    color: var(--color-text-dark);
+  }
